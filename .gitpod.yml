@@ -1,0 +1,3 @@
+tasks:
+  - before: cd backend && pip install -r requirements.txt || true
+    init: echo "Dev workspace ready"
