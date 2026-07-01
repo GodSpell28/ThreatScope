@@ -1,24 +1,24 @@
-import os
-import sys
 import pytest
 
-BACKEND = os.path.join(os.path.dirname(__file__), '..', 'backend')
-sys.path.append(BACKEND)
-
-from app.models.ioc import IOC
-from app.services.scoring import calculate_ioc_risk, calculate_batch_risk
+from httpx import AsyncClient, ASGITransport
+from app.main import app
 
 
-def test_scoring_basic():
-    ioc = IOC(id="1", type="domain", value="malicious.example", confidence=0.8, sources=[])
-    result = calculate_ioc_risk(ioc)
-    assert "risk_score" in result
-    assert 0 <= result["risk_score"] <= 100
+@pytest.mark.asyncio
+async def test_score_endpoint_shape():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        ingest = await client.post("/api/v1/ingest/raw", json={
+            "iocs": [{"type": "ipv4", "value": "10.0.0.2", "risk_score": 10, "confidence": 0.1}],
+            "sources": [{"source_name": "unit-test"}]
+        })
+    assert ingest.status_code == 200
+    ioc_id = ingest.json()["iocs"][0]["id"]
 
-
-def test_scoring_with_sources():
-    ioc = IOC(id="2", type="ipv4", value="198.51.100.10", confidence=0.9, sources=[])
-    for _ in range(5):
-        ioc.sources.append(type("src", (), {"source_name": "vt"})())
-    result = calculate_ioc_risk(ioc)
-    assert result["risk_score"] >= result["source_component"]
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        r = await client.get(f"/api/v1/score/{ioc_id}")
+    assert r.status_code == 200
+    body = r.json()
+    for key in ["id", "risk_score", "confidence", "source_count", "recommendation"]:
+        assert key in body

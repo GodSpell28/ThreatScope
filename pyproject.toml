@@ -1,0 +1,15 @@
+[project]
+name = "threatscope"
+version = "0.1.0"
+description = "Cyber Threat Intelligence & IOC Correlation Platform"
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+]
+
+[tool.pytest.inioptions]
+asyncio_mode = "auto"

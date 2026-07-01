@@ -1,17 +1,38 @@
-import os
-import sys
-
-BACKEND = os.path.join(os.path.dirname(__file__), '..', 'backend')
-sys.path.append(BACKEND)
+import pytest
 
 from httpx import AsyncClient, ASGITransport
 from app.main import app
 
 
-def test_health_without_auth():
+@pytest.mark.asyncio
+async def test_register_and_login():
     transport = ASGITransport(app=app)
-    client = AsyncClient(transport=transport, base_url="http://test")
-    # ensure app starts without auth
-    response = client.get("/health/")
-    assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        reg = await client.post("/api/v1/auth/register", json={"username": "interviewer", "email": "interview@example.com", "password": "secret123", "role": "analyst"})
+    assert reg.status_code == 200
+
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        login = await client.post("/api/v1/auth/login", json={"username": "interviewer", "password": "secret123"})
+    assert login.status_code == 200
+    token = login.json()["access_token"]
+    assert token.startswith("token-")
+
+
+@pytest.mark.asyncio
+async def test_me_endpoint():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        reg = await client.post("/api/v1/auth/register", json={"username": "admin1", "email": "admin1@example.com", "password": "secret123", "role": "admin"})
+    assert reg.status_code == 200
+
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        login = await client.post("/api/v1/auth/login", json={"username": "admin1", "password": "secret123"})
+    token = login.json()["access_token"]
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        r = await client.get("/api/v1/auth/me", headers={"x-token": token})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["role"] == "admin"
+    assert isinstance(data["scopes"], list)
