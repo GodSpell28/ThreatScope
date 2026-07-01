@@ -1,0 +1,31 @@
+# Recruiter & Interview Pitches
+
+## Recruiter Pitch (30 seconds)
+"I built ThreatScope, a threat intelligence platform that ingests indicators of compromise, correlates them, maps them to MITRE ATT&CK, and scores risk. It has a FastAPI backend, React frontend, PostgreSQL, Elasticsearch, Docker, and CI/CD. I use it to demonstrate SOC analyst, threat intelligence, and detection engineering skills for portfolio reviews and interviews."
+
+## Elevator Pitch (60 seconds)
+"ThreatScope is an end-to-end cyber threat intelligence and IOC correlation platform. It starts with ingestion and normalization of threat feeds into stable indicator records. It then enriches and correlates those IOCs, assigns a risk score, maps them to MITRE ATT&CK techniques, and produces JSON reports. I built the backend in FastAPI with SQLAlchemy and PostgreSQL, added Elasticsearch for fast search, and scaffolded a React frontend for investigation. The whole stack runs in Docker Compose and has CI with GitHub Actions. I prepared comprehensive interview docs around it because I want to show not just code, but also how I think about SOC workflows, detection engineering, and threat intelligence operations."
+
+## 5-Minute Explanation
+"ThreatScope is structured in layers. The ingestion layer accepts raw IOC payloads and STIX bundles, normalizes values, deduplicates them using stable hash-based IDs, and stores both the indicators and their sources so we preserve provenance. The search layer lets analysts filter by type, value, and risk score. The correlation layer finds repeated values across sources and creates correlation pairs with averaged risk scores. The scoring layer weights confidence and source frequency into a actionable risk score with recommendations. The MITRE layer lets us map IOCs to techniques and view coverage. The reporting layer summarizes IOC counts by risk tier, type distribution, and technique coverage. The rule layer stores Sigma and YARA rules and validates their syntax. The security layer adds role-based access with viewer, analyst, and admin roles. The frontend scaffold provides a dashboard view with KPIs and an IOC investigation table. I containerized everything in Docker Compose with healthchecks, added seed scripts for MITRE and Elasticsearch, and set up GitHub Actions for lint, tests, build validation, and security scanning. This project is designed to mirror how real SOC and CTI teams operate, and it gives me concrete talking points for detection engineering, threat hunting, incident response, and platform design interviews."
+
+## 10-Minute Deep Dive
+"ThreatScope is built around the core problem analysts face: too much raw threat intel, not enough context or correlation. The backend is organized into routers for ingestion, IOC search, enrichment, correlation, scoring, MITRE mapping, reporting, rules, search, and auth. Each router delegates to service-layer functions so the business logic remains testable outside the HTTP layer.
+
+The IOC model uses a stable ID derived from a normalized type-value pair, which makes deduplication deterministic and makes cross-source correlation easier. Each IOC also has a source model to preserve which feeds contributed to it, when, and with what external IDs. The enrichment endpoint is currently a placeholder but is structured so real passive DNS, WHOIS, VirusTotal, AbuseIPDB, OTX, and MISP integrations can be swapped in behind the same interface.
+
+Risk scoring is computed from confidence and source-count components, producing both a numerical score and a recommendation string. Correlation groups IOCs by identical normalized values and averages their scores, which surfaces indicators that appear across multiple feeds and therefore deserve faster triage.
+
+MITRE ATT&CK mapping is backed by a technique table and an association table linking IOCs to techniques. The seed script populates a representative subset of techniques. The reporting endpoints aggregate IOC risk tiers and technique coverage, which supports SOC management views and gap analysis.
+
+For detection engineering, I added a DetectionRule model with a rule-type enum. Sigma rules are validated by checking for title and detection keys; YARA rules are validated by checking for rule and condition keys. This keeps the validation lightweight while still being representative of what a detection engineering pipeline needs before rules are deployed to SIEM or endpoint agents.
+
+Authentication and authorization use a demo JWT-style token tied to user roles. The scopes are explicit per role, and IOC endpoints enforce read access. This is intentionally simplified for interviews but structured so you can discuss exactly how to replace it with real password hashing, OAuth2, and token refresh flows without redesigning the API contract.
+
+On the infrastructure side, Docker Compose defines Postgres, Elasticsearch, Redis, backend, and frontend with healthchecks. The validation script proves the stack comes up cleanly. GitHub Actions lint the backend with Ruff, run pytest, build the backend image, and run Bandit. Pre-commit hooks cover Ruff, YAML/JSON checks, and Bandit for local development hygiene.
+
+The frontend is React + TypeScript + Vite. The Dashboard page pulls the IOC summary and renders KPI cards plus type distribution. The IOC page renders a searchable investigation table. I kept the UI intentionally simple because the project focus is backend and SOC workflows; the frontend is a scaffold that demonstrates API consumption rather than a full production UI.
+
+For interviews, I prepared tiered answers around architecture, APIs, databases, threat intelligence, IOC enrichment, MITRE ATT&CK, Docker, detection engineering, SOC operations, and threat hunting. I also wrote HR answers focused on why I built this, what I learned, how I would scale it, and how I would collaborate on a SOC team.
+
+The biggest technical trade-off I made was keeping auth and external enrichment as demo implementations rather than fully shipping them. That keeps the repo understandable for interviews while still showing the seams where production logic would plug in. If I were extending this, the next priorities would be real JWT auth, queue-based ingestion, expanded enrichment integrations, Kibana dashboards, PDF report export, and SIEM export utilities."
