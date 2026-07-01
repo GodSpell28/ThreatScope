@@ -3,9 +3,11 @@
 ## Run
 
 ```bash
-pytest`
+pytest
 ```
 
 ## Notes
-- Tests hit the app in-memory via ASGITransport.
-- Seed scripts for MITRE/Elasticsearch are separate maintenance utilities.
+- Tests use `ASGITransport` with the FastAPI app in-memory.
+- `conftest.py` sets safe defaults for environment variables used by auth, database, search, and caching.
+- Seed scripts live under `backend/scripts/` and are independent of pytest.
+- Some endpoints depend on external services like Elasticsearch; those tests are skipped when the service is unavailable if configured to do so by runner.

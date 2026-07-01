@@ -4,7 +4,7 @@
 1. **End-to-end flow**
    Basic: Ingest threat intel, store IOCs, search them, investigate.
    Intermediate: Normalize STIX/MISP/VT into stable IOC records, keep source provenance, correlate repeated values, score risk, alert when thresholds breach, then report.
-   Advanced: Use async workers and RabbitMQ for ingestion, PostgreSQL for structured IOC storage, Elasticsearch for fast search, and async FastAPI routers to decouple correlation, scoring, enrichment, and reporting.
+   Advanced: Use async workers and message queues for ingestion, PostgreSQL for structured IOC storage, Elasticsearch for fast search, and async FastAPI routers to decouple correlation, scoring, enrichment, and reporting.
    Enterprise: Separate ingestion, correlation, scoring, and reporting into bounded contexts with schema registry, audit logging, SLOs, and queue-based eventual consistency.
 
 2. **FastAPI choice**
@@ -27,8 +27,8 @@
 
 5. **PostgreSQL and Elasticsearch**
    Basic: One stores data, one searches fast.
-   Intermediate: PostgreSQL for transactional IOC/source/alert integrity; Elasticsearch for full-text/fuzzy search and log-style correlation queries.
-   Advanced: Use PostgreSQL as source of truth, Elasticsearch as read model; keep them synchronized via application or change-data-capture-style writes.
+   Intermediate: PostgreSQL for transactional IOC/source/alert integrity; Elasticsearch for full-text/fuzzy search and log-style aggregation.
+   Advanced: Use PostgreSQL as source of truth, Elasticsearch as read model; keep them synchronized via application or CDC-style writes.
    Enterprise: Add index lifecycle management, hot/warm nodes, and quota controls for heavy IOC tenants.
 
 6. **`/api/v1/ingest/raw`**
@@ -58,7 +58,4 @@
 10. **gRPC vs REST**
     Basic: gRPC is faster.
     Intermediate: REST is better for web clients; gRPC helps internal services with streaming or high throughput.
-    advanced-for-enterprise: Protobuf schemas reduce ambiguity; gRPC is useful where SAR or interceptor chains are required.
-
-## APIs
-... continue similarly for remaining questions ...
+    Advanced: Protobuf schemas reduce ambiguity; gRPC is useful where SAR or interceptor chains are required.
