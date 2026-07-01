@@ -1,7 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import iocs, health, ingest, enrich, correlation, scoring, mitre, reports, rules
+from app.routers import iocs, health, ingest, enrich, correlation, scoring, mitre, reports, rules, auth
 from app.database import engine, Base
+from app.models.auth import User
+from app.models.ioc import IOC, IOCSource
+from app.models.technique import Technique
+from app.models.rule import DetectionRule
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(iocs.router, prefix="/api/v1/iocs", tags=["iocs"])
 app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["ingest"])
 app.include_router(enrich.router, prefix="/api/v1/enrich", tags=["enrich"])
