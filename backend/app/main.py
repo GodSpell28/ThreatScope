@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import iocs, health, ingest
+from app.routers import iocs, health, ingest, enrich
 from app.database import engine, Base
 
 Base.metadata.create_all(bind=engine)
@@ -21,6 +21,7 @@ app.add_middleware(
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(iocs.router, prefix="/api/v1/iocs", tags=["iocs"])
 app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["ingest"])
+app.include_router(enrich.router, prefix="/api/v1/enrich", tags=["enrich"])
 
 
 @app.get("/")

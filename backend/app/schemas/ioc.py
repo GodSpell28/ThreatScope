@@ -16,8 +16,10 @@ class IOCCreate(BaseModel):
     sources: List[IOCSourceCreate] = []
 
 
-class IOCSourceResponse(IOCSourceCreate):
+class IOCSourceResponse(BaseModel):
     id: int
+    source_name: str
+    external_id: Optional[str]
     fetched_at: datetime
 
     class Config:
