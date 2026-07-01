@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -11,21 +11,37 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U threatscope"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   elasticsearch:
     image: elasticsearch:8.14.0
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 4
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   backend:
     build:
@@ -34,10 +50,37 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://threatscope:threatscope@postgres:5432/threatscope
+      - DATABASE_URL=postgresql://threatscope:***@postgres:5432/threatscope
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - REDIS_URL=redis://redis:6379
-      - SECRET_KEY=change-me-in-production
+      - SECRET_KEY=change-me-in-production-use-a-strong-secret
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - RATE_LIMIT_PER_MINUTE=60
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen("http://localhost:8000/health/")' || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
