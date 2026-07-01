@@ -1,0 +1,2 @@
+{"id":"1","type":"ipv4","indicator":"198.51.100.10","confidence":0.8,"sources":["abuseipdb"],"risk_score":0.6}
+{"id":"2","type":"domain","indicator":"malicious.example","confidence":0.9,"sources":["vt","otx"],"risk_score":0.8}
