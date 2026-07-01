@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import iocs, health
+from app.routers import iocs, health, ingest
+from app.database import engine, Base
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="ThreatScope API",
@@ -17,6 +20,7 @@ app.add_middleware(
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(iocs.router, prefix="/api/v1/iocs", tags=["iocs"])
+app.include_router(ingest.router, prefix="/api/v1/ingest", tags=["ingest"])
 
 
 @app.get("/")
