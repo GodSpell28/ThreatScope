@@ -1,223 +1,173 @@
-# ThreatScope – Cyber Threat Intelligence & IOC Correlation Platform
+# ThreatScope
 
 ![Security](https://img.shields.io/badge/security-portfolio-blue)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![FastAPI](https://img.shields.io/badge/FastAPI-005571?logo=fastapi&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
-![Elasticsearch](https://img.shields.io/badge/Elasticsearch-005571?logo=elasticsearch&logoColor=white)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.114.2-green)
 
-## Project Description
+![Architecture](architecture/ARCHITECTURE.md)
 
-ThreatScope is a comprehensive Cyber Threat Intelligence (CTI) and Indicator of Compromise (IOC) correlation platform designed for modern Security Operations Centers (SOC), threat intelligence teams, and detection engineering workflows. It aggregates threat intelligence from multiple sources, correlates indicators, maps them to MITRE ATT&CK techniques, calculates risk scores, and provides interactive dashboards for threat investigation and reporting.
+ThreatScope is a **Cyber Threat Intelligence & IOC Correlation Platform** built for portfolio-ready demonstration, interview preparation, and real-world SOC/CTI workflows. It ingests indicators, enriches context, correlates related IOCs, maps to MITRE ATT&CK, scores risk, supports Sigma/YARA rules, and exposes an investigation-ready backend with a React frontend scaffold.
 
-## Features
+## What it demonstrates
 
-### Threat Intelligence & Collection
-- Multi-source IOC ingestion (STIX/TAXII, MISP, OpenCTI, VirusTotal, AbuseIPDB, OTX)
-- STIX 2.1 bundle parsing and normalization
-- IOC types: IP, domain, URL, hash, email, YARA, Sigma
-- Automated feed polling and change detection
-- Data source health monitoring
-
-### Correlation & Analysis
-- Cross-source IOC correlation
-- Temporal and behavioral correlation rules
-- MITRE ATT&CK technique and tactic mapping
-- Threat actor attribution
-- Confidence scoring and deduplication
-
-### Risk & Scoring
-- Multi-factor risk scoring engine
-- Contextual enrichment (geolocation, ASN, passive DNS)
-- Threat landscape integration
-- User-defined scoring policies
-- Historical score trending
-
-### Detection Engineering
-- Sigma rule authoring and conversion
-- YARA rule management
-- SIEM query generation (Splunk, Elastic SIEM, Microsoft Sentinel)
-- Detection coverage mapping to MITRE ATT&CK
-- Rule effectiveness tracking
-
-### Dashboard & Reporting
-- Reactive dashboard (KPI cards and trend charts)
-- Real-time IOC investigation
-- Threat actor profiling
-- Executive threat intelligence reports
-- Exportable PDF and CSV reports
-
-### Platform & Operations
-- FastAPI backend with async support
-- React frontend with responsive UI
-- PostgreSQL + Elasticsearch persistence
-- Docker Compose deployment
-- GitHub Actions CI/CD
-- Role-based access control
-- Audit logging
-
-## Architecture
-
-```mermaid
-flowchart LR
-    A[TI Sources] -->|STIX/TAXII/MISP/API| B[Ingestion Service]
-    B --> C[IOC Normalizer]
-    C --> D[(PostgreSQL)]
-    D --> E[Elasticsearch]
-    E --> F[API Layer]
-    F --> G[React Dashboard]
-    F --> H[Correlation Engine]
-    H --> I[Risk Scorer]
-    I --> J[Reporting Engine]
-    K[Sigma/YARA] --> H
-```
+- IOC ingestion, normalization, and deduplication
+- Search, enrichment, and correlation workflows
+- MITRE ATT&CK technique mapping
+- Risk scoring engine
+- Reporting: IOC summaries and technique coverage
+- Sigma/YARA rule ingestion and lightweight validation
+- Role-based access with scoped auth
+- Elasticsearch-backed IOC search scaffold
+- Docker Compose dev runtime with healthchecks
+- CI workflow with lint, test, build, and security scan
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Backend | FastAPI, Python 3.11 | REST API, async ingestion, business logic |
-| Frontend | React, TypeScript, Tailwind CSS | Dashboard, IOC investigation, reports |
-| Database | PostgreSQL | Structured IOC, actor, alert data |
-| Search | Elasticsearch | Fast IOC search, logging, correlation |
-| Cache | Redis | Rate limiting, session cache |
-| Messaging | RabbitMQ | Async ingestion pipeline |
-| Monitoring | Prometheus, Grafana | Metrics and health monitoring |
-| Deployment | Docker Compose | Local and production deployment |
-| CI/CD | GitHub Actions | Lint, test, security scan, build |
+| Layer | Choice |
+|---|---|
+| Backend | FastAPI + Uvicorn + Pydantic v2 |
+| Auth | Demo JWT-style tokens with role scopes |
+| ORM / DB | SQLAlchemy + PostgreSQL 15 |
+| Search | Elasticsearch 8 + mappings for IOCs |
+| Cache / Queue | Redis scaffold |
+| Frontend | React 18 + TypeScript + Vite |
+| Containerization | Docker + Docker Compose |
+| CI | GitHub Actions |
 
-## Quick Start
+## Repository Structure
+
+```text
+ThreatScope/
+backend/
+  app/
+    routers/
+    models/
+    schemas/
+    services/
+  scripts/
+frontend/
+infrastructure/
+tests/
+scripts/
+sample_data/
+screenshots/
+architecture/
+dashboards/
+sigma/
+yara/
+reports/
+docker/
+.github/workflows/
+docs/
+README.md
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+```
+
+## Getting Started
 
 ### Prerequisites
-- Docker & Docker Compose
+
 - Python 3.11+
-- Node.js 18+
-- PostgreSQL 15+
-- Elasticsearch 8.x
+- Docker and Docker Compose
+- Node.js 18+ for frontend development
 
-### Installation
+### Run with Docker
 
 ```bash
-# Clone the repository
-git clone https://github.com/GodSpell28/ThreatScope.git
+git clone git@github.com:GodSpell28/ThreatScope.git
 cd ThreatScope
-
-# Start the platform
-docker-compose up -d
-
-# Verify services
-curl http://localhost:8000/health
+cp docker/.env.example .env
+docker compose up --build
 ```
 
-### Configuration
+- Backend: `http://localhost:8000`
+- Frontend: `http://localhost:5173`
+- Elasticsearch: `http://localhost:9200`
+- PostgreSQL: `localhost:5432`
+
+## Backend Quickstart
 
 ```bash
-cp .env.example .env
+cd backend
+pip install -r ../backend/requirements.txt
+uvicorn app.main:app --reload
 ```
 
-Required environment variables:
-- `DATABASE_URL` — PostgreSQL connection string
-- `ELASTICSEARCH_URL` — Elasticsearch node URL
-- `SECRET_KEY` — JWT signing key
-- `VT_API_KEY` — VirusTotal API key (optional)
-- `ABUSEIPDB_API_KEY` — AbuseIPDB API key (optional)
+## Seed Data
 
-## API Documentation
+```bash
+cd backend
+python scripts/seed_mitre.py --reset
+python scripts/seed_elasticsearch.py --reset
+```
 
-Once running, access interactive API docs at:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
+## API Overview
 
-## Security Features
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/v1/ingest/raw` | Ingest normalized IOCs |
+| GET | `/api/v1/iocs/search` | Search and filter IOCs |
+| POST | `/api/v1/enrich/{id}/enrich` | Enrichment workflow |
+| GET | `/api/v1/correlation/run` | Run IOC correlation |
+| GET/POST | `/api/v1/score` | Risk scoring |
+| GET/POST | `/api/v1/mitre/search` | Search MITRE techniques |
+| POST | `/api/v1/mitre/{ioc_id}/map/{technique_id}` | Map IOC to technique |
+| GET | `/api/v1/reports/ioc-summary` | IOC summary report |
+| GET | `/api/v1/reports/threat-summary` | Technique coverage report |
+| POST/GET | `/api/v1/rules/` | Sigma/YARA rule management |
+| POST | `/api/v1/rules/{id}/validate` | Validate rule syntax |
+| GET | `/api/v1/search/query` | Elasticsearch-backed IOC search |
+| POST | `/api/v1/auth/register` | Register user |
+| POST | `/api/v1/auth/login` | Obtain access token |
+| GET | `/api/v1/auth/me` | Current user profile |
 
-- JWT-based authentication
-- Role-based access control (RBAC)
-- Rate limiting per endpoint
-- Input validation and sanitization
-- Secrets management via environment variables
-- HTTPS enforcement in production
-- Audit logging for all sensitive operations
-- Security scanning in CI/CD pipeline
+## Frontend Pages
 
-## Threat Intelligence Features
+- `/` — Dashboard with IOC KPIs and type distribution
+- `/iocs` — IOC investigation table
 
-- Multi-source IOC aggregation
-- STIX 2.1 format support
-- TAXII 2.1 server integration
-- MISP event import/export
-- Automated indicator enrichment
-- Threat actor profile tracking
-- Campaign association
+## Security Considerations
 
-## MITRE ATT&CK Features
+- Role-based access: `viewer`, `analyst`, `admin`
+- Token-scoped endpoint protection
+- Input validation with Pydantic
+- Rate limiting scaffold
+- Audit considerations documented in `SECURITY.md`
 
-- Technique and tactic mapping
-- Detection coverage matrix
-- Technique frequency analysis
-- Coverage gap identification
-- Custom technique tagging
-- Enterprise, Mobile, and ICS matrix support
+## Detection Engineering
 
-## Sigma & YARA
-
-- Sigma rule validation
-- Sigma to SIEM query conversion (Splunk, Elastic, Sigma CLI)
-- YARA rule compilation and matching
-- Rule performance tracking
-- Rule versioning and lifecycle management
+- Sigma rules can be stored and validated
+- YARA rules can be stored and validated
+- Rules are intended for future SIEM/malware pipeline integration
 
 ## Testing
 
 ```bash
-# Backend tests
-cd backend
-pytest tests/ -v --cov=app
-
-# Frontend tests
-cd frontend
-npm test
-
-# Security scans
-bandit -r backend/
-safety check
+pytest tests/
 ```
 
 ## Roadmap
 
-- [x] Project initialization and architecture design
-- [x] Backend API framework and database models
-- [ ] Multi-source IOC ingestion pipeline
-- [ ] Correlation engine and risk scoring
-- [ ] MITRE ATT&CK integration
-- [ ] React dashboard
-- [ ] Sigma/YARA rule management
-- [ ] Reporting and export
-- [ ] Production deployment guide
-
-## Future Enhancements
-
-- Machine learning anomaly detection
-- Threat actor TTP profiling
-- Automated IOC hunting
-- SIEM integration connectors
-- Collaborative threat sharing
-- Mobile threat intelligence
-- Supply chain security analysis
-- Compliance reporting (NIST, ISO 27001)
+- [ ] Replace demo auth with real password hashing and JWT verification
+- [ ] Async ingestion workers and queue-based pipeline
+- [ ] Expanded enrichment integrations
+- [ ] Kibana dashboards for threat investigation
+- [ ] Full React investigation and reporting UI
+- [ ] PDF/CSV report export
+- [ ] Sigma-to-SIEM conversion utilities
+- [ ] YARA runtime matching workflow
+- [ ] Rate limiting and audit logging
 
 ## License
 
-MIT — see [LICENSE](LICENSE) for details.
+MIT — see `LICENSE`
 
 ## Author
 
-**GodSpell28** — Cybersecurity Engineer  
-GitHub: https://github.com/GodSpell28  
-Email: bhaveshbhardwaj28@gmail.com
-
-## Disclaimer
-
-This project is built for educational and portfolio purposes. It is not intended for production use without further security hardening and compliance review.
+Built by [GodSpell28](https://github.com/GodSpell28)
