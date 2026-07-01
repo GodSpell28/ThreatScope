@@ -50,7 +50,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install pytest pytest-asyncio httpx sqlalchemy aiosqlite
+      - run: pip install -r backend/requirements.txt
+      - run: pip install pytest pytest-asyncio httpx aiosqlite
       - env:
           DATABASE_URL: sqlite:///./ci_test.db
         run: pytest tests/ -q
