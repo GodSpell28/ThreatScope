@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import iocs, health, ingest, enrich, correlation, scoring, mitre, reports, rules, auth
+from app.routers import iocs, health, ingest, enrich, correlation, scoring, mitre, reports, rules, auth, search
 from app.database import engine, Base
 from app.models.auth import User
 from app.models.ioc import IOC, IOCSource
@@ -32,6 +32,7 @@ app.include_router(scoring.router, prefix="/api/v1/score", tags=["score"])
 app.include_router(mitre.router, prefix="/api/v1/mitre", tags=["mitre"])
 app.include_router(reports.router, prefix="/api/v1/reports", tags=["reports"])
 app.include_router(rules.router, prefix="/api/v1/rules", tags=["rules"])
+app.include_router(search.router, prefix="/api/v1/search", tags=["search"])
 
 
 @app.get("/")
